@@ -16,9 +16,26 @@ class NoteController extends Controller
      */
     public function index()
     {
-        $notes = Note::all();
+        $search = request('search');
+        $notesQuery = Note::query();
+
+        if ($search) {
+            $notesQuery->where(function ($query) use ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('tags', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $notes = $notesQuery->get();
+
         return inertia('notes/index', [
             'notes' => $notes->load('category')->load('tags'),
+            'search' => $search,
         ]);
     }
 
