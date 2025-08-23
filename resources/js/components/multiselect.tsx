@@ -43,8 +43,6 @@ export function MultiSelect({ options, selected, onChange }: MultiSelectProps) {
         setInputValue('');
     };
 
-    console.log('Selected items:', selected);
-
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className="flex gap-2">
