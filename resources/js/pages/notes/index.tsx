@@ -7,6 +7,10 @@ type Note = {
     id: number;
     title: string;
     content: string;
+    category?: {
+        id: number;
+        name: string;
+    } | null;
 };
 
 interface Props {
@@ -30,7 +34,6 @@ export default function NotesIndex({ notes }: Props) {
 
     return (
         <AppLayout>
-            {typeof props.success === 'string' && props.success && <div className="mb-4 text-green-600">{props.success}</div>}
             <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-xl font-bold dark:text-white">All Notes</h2>
                 <Link href="/notes/create" className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
@@ -41,6 +44,7 @@ export default function NotesIndex({ notes }: Props) {
                 {notes.map((note) => (
                     <li key={note.id} className="mb-4 border-b pb-4">
                         <div className="font-semibold">{note.title}</div>
+                        <div className="text-gray-300">Category: {note.category?.name}</div>
                         <div className="mt-2 flex gap-2">
                             <Link href={`/notes/${note.id}/edit`} className="rounded bg-yellow-500 px-3 py-1 text-white hover:bg-yellow-600">
                                 View

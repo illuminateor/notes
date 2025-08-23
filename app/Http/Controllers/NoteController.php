@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Note;
+use App\Models\Category;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
 use Inertia\Inertia;
@@ -16,7 +17,7 @@ class NoteController extends Controller
     {
         $notes = Note::all();
         return inertia('notes/index', [
-            'notes' => $notes,
+            'notes' => $notes->load('category'),
         ]);
     }
 
@@ -25,7 +26,10 @@ class NoteController extends Controller
      */
     public function create()
     {
-        return Inertia::render('notes/create');
+        $categories = Category::all();
+        return Inertia::render('notes/create', [
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -33,8 +37,15 @@ class NoteController extends Controller
      */
     public function store(StoreNoteRequest $request)
     {
-        $note = Note::create($request->validated());
-
+        $data = $request->validated();
+        if (!empty($data['category'])) {
+            $category = Category::firstOrCreate(['name' => $data['category']]);
+            $data['category_id'] = $category->id;
+        } else {
+            $data['category_id'] = null;
+        }
+        unset($data['category']);
+        $note = Note::create($data);
         return redirect()->route('notes.index')->with('success', 'Note created successfully.');
     }
 
@@ -51,8 +62,10 @@ class NoteController extends Controller
      */
     public function edit(Note $note)
     {
+        $categories = Category::all();
         return Inertia::render('notes/edit', [
-            'note' => $note,
+            'note' => $note->load('category'),
+            'categories' => $categories,
         ]);
     }
 
@@ -61,7 +74,15 @@ class NoteController extends Controller
      */
     public function update(UpdateNoteRequest $request, Note $note)
     {
-        $note->update($request->validated());
+        $data = $request->validated();
+        if (!empty($data['category'])) {
+            $category = Category::firstOrCreate(['name' => $data['category']]);
+            $data['category_id'] = $category->id;
+        } else {
+            $data['category_id'] = null;
+        }
+        unset($data['category']);
+        $note->update($data);
 
         return redirect()->route('notes.index')->with('success', 'Note updated successfully.');
     }

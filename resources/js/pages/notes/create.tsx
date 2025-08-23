@@ -1,3 +1,6 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -8,6 +11,7 @@ import TaskList from '@tiptap/extension-task-list';
 import Text from '@tiptap/extension-text';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import React, { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,11 +24,22 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function CreateNote() {
+export default function CreateNote({ categories }: { categories: { id: number; name: string }[] }) {
+    const [options, setOptions] = useState<string[]>(categories.map((cat) => cat.name));
+    const [filtered, setFiltered] = useState<string[]>(options);
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         content: '',
+        category: '',
     });
+
+    useEffect(() => {
+        if (data.category) {
+            setFiltered(options.filter((opt) => opt.toLowerCase().includes(data.category.toLowerCase())));
+        } else {
+            setFiltered(options);
+        }
+    }, [data.category, options]);
 
     const editor = useEditor({
         extensions: [
@@ -48,10 +63,26 @@ export default function CreateNote() {
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        // Ensure latest editor content is sent
         setData('content', editor?.getHTML() || '');
         post('/notes');
     }
+
+    const handleSelect = (value: string) => {
+        setData('category', value);
+        setFiltered([]);
+    };
+
+    const handleAdd = () => {
+        if (data.category && !options.includes(data.category)) {
+            setOptions((prev) => [...prev, data.category]);
+            setFiltered([]);
+        }
+    };
+
+    const handleClear = () => {
+        setData('category', '');
+        setFiltered(options);
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -78,6 +109,9 @@ export default function CreateNote() {
                     />
                     {errors.title && <div className="mt-1 text-sm text-red-500">{errors.title}</div>}
                 </div>
+                <label className="mb-1 block font-medium dark:text-white" htmlFor="title">
+                    Content
+                </label>
                 <div className="rounded border p-4">
                     {/* Toolbar with icons */}
                     <div className="mb-2 flex flex-wrap gap-2">
@@ -254,6 +288,53 @@ export default function CreateNote() {
                     </div>
                     <EditorContent editor={editor} />
                     {errors.content && <div className="mt-1 text-sm text-red-500">{errors.content}</div>}
+                </div>
+                <label className="mb-1 block font-medium dark:text-white" htmlFor="title">
+                    Category
+                </label>
+                <div className="mx-auto mt-10 w-80">
+                    <Card className="p-4 shadow-lg dark:bg-gray-900 dark:text-gray-100">
+                        <CardContent className="flex flex-col gap-2">
+                            <div className="relative">
+                                <Input
+                                    value={data.category}
+                                    onChange={(e) => setData('category', e.target.value)}
+                                    placeholder="Type to search or add..."
+                                    className="pr-10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                                />
+                                {data.category && (
+                                    <button
+                                        onClick={handleClear}
+                                        className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                    >
+                                        X
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Suggestion List */}
+                            {filtered.length > 0 && (
+                                <div className="max-h-40 overflow-auto rounded-lg border bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                                    {filtered.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => handleSelect(item)}
+                                            className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        >
+                                            {item}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Add Button if not exists */}
+                            {data.category && !options.includes(data.category) && (
+                                <Button onClick={handleAdd} className="mt-2 dark:bg-blue-600 dark:hover:bg-blue-500">
+                                    ➕ Add "{data.category}"
+                                </Button>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
                 <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50" disabled={processing}>
                     Create
