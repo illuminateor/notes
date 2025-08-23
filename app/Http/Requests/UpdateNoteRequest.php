@@ -25,6 +25,7 @@ class UpdateNoteRequest extends FormRequest
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category' => 'nullable|string|max:255',
+            'selectedTags' => 'nullable|array',
         ];
     }
 }

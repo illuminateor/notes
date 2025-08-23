@@ -1,3 +1,4 @@
+import { MultiSelect } from '@/components/multiselect';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,11 +22,16 @@ type Note = {
         id: number;
         name: string;
     };
+    tags?: {
+        id: number;
+        name: string;
+    }[];
 };
 
 interface Props {
     note: Note;
     categories: { id: number; name: string }[];
+    tags: { id: number; name: string }[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -35,13 +41,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function EditNote({ note, categories }: Props) {
+export default function EditNote({ note, categories, tags }: Props) {
     const [options, setOptions] = useState<string[]>(categories.map((cat) => cat.name));
     const [filtered, setFiltered] = useState<string[]>(options);
     const { data, setData, put, processing, errors } = useForm({
         title: note.title,
         content: note.content,
         category: note.category ? note.category.name : '',
+        selectedTags: note.tags ? note.tags.map((tag) => ({ value: tag.name, label: tag.name })) : [],
     });
 
     useEffect(() => {
@@ -93,6 +100,10 @@ export default function EditNote({ note, categories }: Props) {
     const handleClear = () => {
         setData('category', '');
         setFiltered(options);
+    };
+
+    const handleSetSelected = (selected: { value: string; label: string }[]) => {
+        setData('selectedTags', selected);
     };
 
     return (
@@ -346,6 +357,16 @@ export default function EditNote({ note, categories }: Props) {
                             )}
                         </CardContent>
                     </Card>
+                </div>
+                <label className="mb-1 block font-medium dark:text-white" htmlFor="title">
+                    Tags
+                </label>
+                <div className="p-10">
+                    <MultiSelect
+                        options={tags.map((tag) => ({ value: tag.id.toString(), label: tag.name }))}
+                        selected={data.selectedTags}
+                        onChange={handleSetSelected}
+                    />
                 </div>
                 <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50" disabled={processing}>
                     Update

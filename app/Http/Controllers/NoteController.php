@@ -6,6 +6,7 @@ use App\Models\Note;
 use App\Models\Category;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
+use App\Models\Tag;
 use Inertia\Inertia;
 
 class NoteController extends Controller
@@ -17,7 +18,7 @@ class NoteController extends Controller
     {
         $notes = Note::all();
         return inertia('notes/index', [
-            'notes' => $notes->load('category'),
+            'notes' => $notes->load('category')->load('tags'),
         ]);
     }
 
@@ -27,8 +28,11 @@ class NoteController extends Controller
     public function create()
     {
         $categories = Category::all();
+        $tags = Tag::all();
+
         return Inertia::render('notes/create', [
             'categories' => $categories,
+            'tags' => $tags,
         ]);
     }
 
@@ -45,7 +49,24 @@ class NoteController extends Controller
             $data['category_id'] = null;
         }
         unset($data['category']);
+
+        // Process tags
+        $tags = [];
+        if (!empty($data['selectedTags']) && is_array($data['selectedTags'])) {
+            foreach ($data['selectedTags'] as $tagName) {
+                $tag = Tag::firstOrCreate(['name' => $tagName['value']]);
+                $tags[] = $tag->id;
+            }
+        }
+        unset($data['selectedTags']);
+
         $note = Note::create($data);
+
+        // Attach tags to note
+        if (!empty($tags)) {
+            $note->tags()->sync($tags);
+        }
+
         return redirect()->route('notes.index')->with('success', 'Note created successfully.');
     }
 
@@ -63,9 +84,11 @@ class NoteController extends Controller
     public function edit(Note $note)
     {
         $categories = Category::all();
+        $tags = Tag::all();
         return Inertia::render('notes/edit', [
-            'note' => $note->load('category'),
+            'note' => $note->load('category')->load('tags'),
             'categories' => $categories,
+            'tags' => $tags,
         ]);
     }
 
@@ -82,7 +105,25 @@ class NoteController extends Controller
             $data['category_id'] = null;
         }
         unset($data['category']);
+
+        // Process tags
+        $tags = [];
+        if (!empty($data['selectedTags']) && is_array($data['selectedTags'])) {
+            foreach ($data['selectedTags'] as $tagName) {
+                $tag = Tag::firstOrCreate(['name' => $tagName['label']]);
+                $tags[] = $tag->id;
+            }
+        }
+        unset($data['selectedTags']);
+
         $note->update($data);
+
+        // Sync tags to note
+        if (!empty($tags)) {
+            $note->tags()->sync($tags);
+        } else {
+            $note->tags()->detach();
+        }
 
         return redirect()->route('notes.index')->with('success', 'Note updated successfully.');
     }

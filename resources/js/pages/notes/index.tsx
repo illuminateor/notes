@@ -11,6 +11,10 @@ type Note = {
         id: number;
         name: string;
     } | null;
+    tags?: {
+        id: number;
+        name: string;
+    }[];
 };
 
 interface Props {
@@ -45,6 +49,7 @@ export default function NotesIndex({ notes }: Props) {
                     <li key={note.id} className="mb-4 border-b pb-4">
                         <div className="font-semibold">{note.title}</div>
                         <div className="text-gray-300">Category: {note.category?.name}</div>
+                        <div className="text-gray-300">Tags: {note?.tags && note?.tags.map((tag: { name: string }) => tag.name).join(', ')}</div>
                         <div className="mt-2 flex gap-2">
                             <Link href={`/notes/${note.id}/edit`} className="rounded bg-yellow-500 px-3 py-1 text-white hover:bg-yellow-600">
                                 View
