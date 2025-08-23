@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Link, router, usePage } from '@inertiajs/react';
+import { format } from 'date-fns';
 import _debounce from 'lodash/debounce';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -8,6 +9,8 @@ type Note = {
     id: number;
     title: string;
     content: string;
+    created_at: string;
+    updated_at: string;
     category?: {
         id: number;
         name: string;
@@ -21,6 +24,15 @@ type Note = {
 interface Props {
     notes: Note[];
     search?: string;
+}
+
+interface TimestampConverterProps {
+    timestamp: string;
+}
+
+function TimestampConverter({ timestamp }: TimestampConverterProps) {
+    const date = new Date(timestamp);
+    return <span>{format(date, 'PPpp')}</span>;
 }
 
 export default function NotesIndex({ notes, search = '' }: Props) {
@@ -76,6 +88,12 @@ export default function NotesIndex({ notes, search = '' }: Props) {
                         <div className="font-semibold">{note.title}</div>
                         <div className="text-gray-300">Category: {note.category?.name}</div>
                         <div className="text-gray-300">Tags: {note?.tags && note?.tags.map((tag: { name: string }) => tag.name).join(', ')}</div>
+                        <div className="text-gray-300">
+                            Created: <TimestampConverter timestamp={note.created_at} />
+                        </div>
+                        <div className="text-gray-300">
+                            Last Updated: <TimestampConverter timestamp={note.updated_at} />
+                        </div>
                         <div className="mt-2 flex gap-2">
                             <Link href={`/notes/${note.id}/edit`} className="rounded bg-yellow-500 px-3 py-1 text-white hover:bg-yellow-600">
                                 View

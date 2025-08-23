@@ -31,7 +31,7 @@ class NoteController extends Controller
             });
         }
 
-        $notes = $notesQuery->get();
+        $notes = $notesQuery->orderBy('updated_at', 'desc')->get();
 
         return inertia('notes/index', [
             'notes' => $notes->load('category')->load('tags'),
