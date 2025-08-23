@@ -41,10 +41,9 @@ export default function NotesIndex({ notes }: Props) {
                 {notes.map((note) => (
                     <li key={note.id} className="mb-4 border-b pb-4">
                         <div className="font-semibold">{note.title}</div>
-                        <div>{note.content}</div>
                         <div className="mt-2 flex gap-2">
                             <Link href={`/notes/${note.id}/edit`} className="rounded bg-yellow-500 px-3 py-1 text-white hover:bg-yellow-600">
-                                Edit
+                                View
                             </Link>
                             <button onClick={() => handleDelete(note.id)} className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700">
                                 Delete
