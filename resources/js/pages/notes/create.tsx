@@ -1,6 +1,13 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import TaskItem from '@tiptap/extension-task-item';
+import TaskList from '@tiptap/extension-task-list';
+import Text from '@tiptap/extension-text';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,8 +26,30 @@ export default function CreateNote() {
         content: '',
     });
 
+    const editor = useEditor({
+        extensions: [
+            StarterKit.configure({
+                bulletList: false,
+                orderedList: false,
+            }),
+            Document,
+            Paragraph,
+            Text,
+            TaskList,
+            TaskItem.configure({
+                nested: true,
+            }),
+        ],
+        content: data.content,
+        onUpdate({ editor }) {
+            setData('content', editor.getHTML());
+        },
+    });
+
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+        // Ensure latest editor content is sent
+        setData('content', editor?.getHTML() || '');
         post('/notes');
     }
 
@@ -49,19 +78,181 @@ export default function CreateNote() {
                     />
                     {errors.title && <div className="mt-1 text-sm text-red-500">{errors.title}</div>}
                 </div>
-                <div>
-                    <label className="mb-1 block font-medium dark:text-white" htmlFor="content">
-                        Content
-                    </label>
-                    <textarea
-                        id="content"
-                        name="content"
-                        className="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white"
-                        value={data.content}
-                        onChange={(e) => setData('content', e.target.value)}
-                        rows={6}
-                        required
-                    />
+                <div className="rounded border p-4">
+                    {/* Toolbar with icons */}
+                    <div className="mb-2 flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            title="Bold"
+                            onClick={() => editor?.chain().focus().toggleBold().run()}
+                            className={
+                                editor?.isActive('bold')
+                                    ? 'rounded bg-blue-600 px-2 py-1 text-white dark:bg-blue-700'
+                                    : 'rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white'
+                            }
+                        >
+                            {/* Bold SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <text x="4" y="17" fontWeight="bold" fontSize="16" fill="currentColor">
+                                    B
+                                </text>
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Italic"
+                            onClick={() => editor?.chain().focus().toggleItalic().run()}
+                            className={
+                                editor?.isActive('italic')
+                                    ? 'rounded bg-blue-600 px-2 py-1 text-white dark:bg-blue-700'
+                                    : 'rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white'
+                            }
+                        >
+                            {/* Italic SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <text x="4" y="17" fontStyle="italic" fontSize="16" fill="currentColor">
+                                    I
+                                </text>
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Strike"
+                            onClick={() => editor?.chain().focus().toggleStrike().run()}
+                            className={
+                                editor?.isActive('strike')
+                                    ? 'rounded bg-blue-600 px-2 py-1 text-white dark:bg-blue-700'
+                                    : 'rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white'
+                            }
+                        >
+                            {/* Strike SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <text x="4" y="17" fontSize="16" fill="currentColor">
+                                    S
+                                </text>
+                                <line x1="2" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="2" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Code"
+                            onClick={() => editor?.chain().focus().toggleCode().run()}
+                            className={
+                                editor?.isActive('code')
+                                    ? 'rounded bg-blue-600 px-2 py-1 text-white dark:bg-blue-700'
+                                    : 'rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white'
+                            }
+                        >
+                            {/* Code SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <polyline points="7 8 3 12 7 16" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <polyline points="17 8 21 12 17 16" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <line x1="10" y1="19" x2="14" y2="5" stroke="currentColor" strokeWidth="2" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Blockquote"
+                            onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+                            className={
+                                editor?.isActive('blockquote')
+                                    ? 'rounded bg-blue-600 px-2 py-1 text-white dark:bg-blue-700'
+                                    : 'rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white'
+                            }
+                        >
+                            {/* Blockquote SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <rect x="3" y="7" width="6" height="10" rx="2" fill="currentColor" opacity="0.2" />
+                                <rect x="15" y="7" width="6" height="10" rx="2" fill="currentColor" opacity="0.2" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Task List"
+                            onClick={() => editor?.chain().focus().toggleTaskList().run()}
+                            className={
+                                editor?.isActive('taskList')
+                                    ? 'rounded bg-blue-600 px-2 py-1 text-white dark:bg-blue-700'
+                                    : 'rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white'
+                            }
+                        >
+                            {/* Task List SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <rect x="4" y="6" width="16" height="2" fill="currentColor" />
+                                <rect x="4" y="11" width="16" height="2" fill="currentColor" />
+                                <rect x="4" y="16" width="16" height="2" fill="currentColor" />
+                                <rect x="2" y="6" width="2" height="2" fill="currentColor" />
+                                <rect x="2" y="11" width="2" height="2" fill="currentColor" />
+                                <rect x="2" y="16" width="2" height="2" fill="currentColor" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="New Task"
+                            onClick={() => editor?.chain().focus().splitListItem('taskItem').run()}
+                            className="rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white"
+                        >
+                            {/* New Task SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" strokeWidth="2" />
+                                <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="2" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Heading"
+                            onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+                            className={
+                                editor?.isActive('heading', { level: 1 })
+                                    ? 'rounded bg-blue-600 px-2 py-1 text-white dark:bg-blue-700'
+                                    : 'rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white'
+                            }
+                        >
+                            {/* Heading SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <text x="2" y="17" fontSize="16" fontWeight="bold" fill="currentColor">
+                                    H1
+                                </text>
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Horizontal Rule"
+                            onClick={() => editor?.chain().focus().setHorizontalRule().run()}
+                            className="rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white"
+                        >
+                            {/* Horizontal Rule SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Undo"
+                            onClick={() => editor?.chain().focus().undo().run()}
+                            className="rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white"
+                        >
+                            {/* Undo SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <path d="M9 7L4 12L9 17" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path d="M20 12H5" stroke="currentColor" strokeWidth="2" fill="none" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            title="Redo"
+                            onClick={() => editor?.chain().focus().redo().run()}
+                            className="rounded bg-gray-200 px-2 py-1 dark:bg-gray-700 dark:text-white"
+                        >
+                            {/* Redo SVG */}
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                                <path d="M15 7L20 12L15 17" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path d="M4 12H19" stroke="currentColor" strokeWidth="2" fill="none" />
+                            </svg>
+                        </button>
+                    </div>
+                    <EditorContent editor={editor} />
                     {errors.content && <div className="mt-1 text-sm text-red-500">{errors.content}</div>}
                 </div>
                 <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50" disabled={processing}>
