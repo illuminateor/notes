@@ -5,11 +5,8 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
-import Text from '@tiptap/extension-text';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import React, { useEffect, useState } from 'react';
@@ -54,9 +51,6 @@ export default function CreateNote({ categories, tags }: Props) {
                 bulletList: false,
                 orderedList: false,
             }),
-            Document,
-            Paragraph,
-            Text,
             TaskList,
             TaskItem.configure({
                 nested: true,
