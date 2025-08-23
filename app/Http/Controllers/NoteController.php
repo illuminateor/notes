@@ -17,6 +17,8 @@ class NoteController extends Controller
     public function index()
     {
         $search = request('search');
+        $category = request('category');
+        $tag = request('tag');
         $notesQuery = Note::query();
 
         if ($search) {
@@ -28,6 +30,18 @@ class NoteController extends Controller
                     ->orWhereHas('tags', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%");
                     });
+            });
+        }
+
+        if ($category) {
+            $notesQuery->whereHas('category', function ($q) use ($category) {
+                $q->where('id', $category);
+            });
+        }
+
+        if ($tag) {
+            $notesQuery->whereHas('tags', function ($q) use ($tag) {
+                $q->where('tags.id', $tag);
             });
         }
 
@@ -44,13 +58,7 @@ class NoteController extends Controller
      */
     public function create()
     {
-        $categories = Category::all();
-        $tags = Tag::all();
-
-        return Inertia::render('notes/create', [
-            'categories' => $categories,
-            'tags' => $tags,
-        ]);
+        return Inertia::render('notes/create');
     }
 
     /**
@@ -71,7 +79,7 @@ class NoteController extends Controller
         $tags = [];
         if (!empty($data['selectedTags']) && is_array($data['selectedTags'])) {
             foreach ($data['selectedTags'] as $tagName) {
-                $tag = Tag::firstOrCreate(['name' => $tagName['value']]);
+                $tag = Tag::firstOrCreate(['name' => $tagName['label']]);
                 $tags[] = $tag->id;
             }
         }
@@ -100,12 +108,8 @@ class NoteController extends Controller
      */
     public function edit(Note $note)
     {
-        $categories = Category::all();
-        $tags = Tag::all();
         return Inertia::render('notes/edit', [
             'note' => $note->load('category')->load('tags'),
-            'categories' => $categories,
-            'tags' => $tags,
         ]);
     }
 

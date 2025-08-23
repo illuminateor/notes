@@ -4,17 +4,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import React, { useEffect, useState } from 'react';
-
-interface Props {
-    categories: { id: number; name: string }[];
-    tags: { id: number; name: string }[];
-}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,7 +22,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function CreateNote({ categories, tags }: Props) {
+type PageProps = {
+    categories: { id: number; name: string }[];
+    tags: { id: number; name: string }[];
+};
+
+export default function CreateNote() {
+    const { categories, tags } = usePage<PageProps>().props;
+
     const [options, setOptions] = useState<string[]>(categories.map((cat) => cat.name));
     const [filtered, setFiltered] = useState<string[]>(options);
     const { data, setData, post, processing, errors } = useForm({
