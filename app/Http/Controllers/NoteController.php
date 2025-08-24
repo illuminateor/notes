@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
 use App\Models\Tag;
+use App\Models\Workspace;
 use Inertia\Inertia;
 
 class NoteController extends Controller
@@ -19,6 +20,7 @@ class NoteController extends Controller
         $search = request('search');
         $category = request('category');
         $tag = request('tag');
+        $workspace = request('workspace');
         $notesQuery = Note::query();
 
         if ($search) {
@@ -28,6 +30,9 @@ class NoteController extends Controller
                         $q->where('name', 'like', "%{$search}%");
                     })
                     ->orWhereHas('tags', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('workspace', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%");
                     });
             });
@@ -45,10 +50,16 @@ class NoteController extends Controller
             });
         }
 
+        if ($workspace) {
+            $notesQuery->whereHas('workspace', function ($q) use ($workspace) {
+                $q->where('id', $workspace);
+            });
+        }
+
         $notes = $notesQuery->orderBy('updated_at', 'desc')->get();
 
         return inertia('notes/index', [
-            'notes' => $notes->load('category')->load('tags'),
+            'notes' => $notes->load('category')->load('tags')->load('workspace'),
             'search' => $search,
         ]);
     }
@@ -74,6 +85,9 @@ class NoteController extends Controller
             $data['category_id'] = null;
         }
         unset($data['category']);
+
+        // Assign workspace_id
+        $data['workspace_id'] = $request->workspace_id;
 
         // Process tags
         $tags = [];
@@ -109,7 +123,7 @@ class NoteController extends Controller
     public function edit(Note $note)
     {
         return Inertia::render('notes/edit', [
-            'note' => $note->load('category')->load('tags'),
+            'note' => $note->load('category')->load('tags')->load('workspace'),
         ]);
     }
 
@@ -126,6 +140,9 @@ class NoteController extends Controller
             $data['category_id'] = null;
         }
         unset($data['category']);
+
+        // Assign workspace_id
+        $data['workspace_id'] = $request->workspace_id;
 
         // Process tags
         $tags = [];

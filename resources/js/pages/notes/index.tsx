@@ -19,6 +19,10 @@ type Note = {
         id: number;
         name: string;
     }[];
+    workspace?: {
+        id: number;
+        name: string;
+    };
 };
 
 interface Props {
@@ -70,7 +74,7 @@ export default function NotesIndex({ notes, search = '' }: Props) {
             <div className="mb-4">
                 <input
                     type="text"
-                    placeholder="Search notes on title, category and tags"
+                    placeholder="Search notes on title, workspace, category or tags"
                     value={searchTerm}
                     onChange={handleSearchChange}
                     className="w-full rounded border px-3 py-2"
@@ -86,6 +90,7 @@ export default function NotesIndex({ notes, search = '' }: Props) {
                 {notes.map((note) => (
                     <li key={note.id} className="mb-4 border-b pb-4">
                         <div className="font-semibold">{note.title}</div>
+                        <div className="text-gray-300">Workspace: {note.workspace?.name ?? '—'}</div>
                         <div className="text-gray-300">Category: {note.category?.name}</div>
                         <div className="text-gray-300">Tags: {note?.tags && note?.tags.map((tag: { name: string }) => tag.name).join(', ')}</div>
                         <div className="text-gray-300">

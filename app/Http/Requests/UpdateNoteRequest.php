@@ -26,6 +26,7 @@ class UpdateNoteRequest extends FormRequest
             'content' => 'required|string',
             'category' => 'nullable|string|max:255',
             'selectedTags' => 'nullable|array',
+            'workspace_id' => 'nullable|exists:workspaces,id',
         ];
     }
 }

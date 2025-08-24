@@ -25,10 +25,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 type PageProps = {
     categories: { id: number; name: string }[];
     tags: { id: number; name: string }[];
+    workspaces: { id: number; name: string }[];
 };
 
 export default function CreateNote() {
-    const { categories, tags } = usePage<PageProps>().props;
+    const { categories, tags, workspaces } = usePage<PageProps>().props;
 
     const [options, setOptions] = useState<string[]>(categories.map((cat) => cat.name));
     const [filtered, setFiltered] = useState<string[]>(options);
@@ -37,6 +38,7 @@ export default function CreateNote() {
         content: '',
         category: '',
         selectedTags: [] as { value: string; label: string }[],
+        workspace_id: '',
     });
 
     useEffect(() => {
@@ -115,6 +117,26 @@ export default function CreateNote() {
                         required
                     />
                     {errors.title && <div className="mt-1 text-sm text-red-500">{errors.title}</div>}
+                </div>
+                <div>
+                    <label className="mb-1 block font-medium dark:text-white" htmlFor="workspace">
+                        Workspace
+                    </label>
+                    <select
+                        id="workspace"
+                        name="workspace"
+                        className="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white"
+                        value={data.workspace_id}
+                        onChange={(e) => setData('workspace_id', e.target.value)}
+                    >
+                        <option value="">Select a Workspace</option>
+                        {workspaces.map((workspace) => (
+                            <option key={workspace.id} value={workspace.id}>
+                                {workspace.name}
+                            </option>
+                        ))}
+                    </select>
+                    {errors.workspace_id && <div className="mt-1 text-sm text-red-500">{errors.workspace_id}</div>}
                 </div>
                 <label className="mb-1 block font-medium dark:text-white" htmlFor="title">
                     Content

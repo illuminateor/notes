@@ -13,6 +13,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('notes', App\Http\Controllers\NoteController::class);
+    Route::post(uri: '/workspaces', action: [App\Http\Controllers\WorkspaceController::class, 'store'])->name('workspaces.store');
 });
 
 require __DIR__ . '/settings.php';

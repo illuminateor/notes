@@ -53,6 +53,7 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'categories' => \App\Models\Category::orderBy('name')->get(),
             'tags' => \App\Models\Tag::orderBy('name')->get(),
+            'workspaces' => \App\Models\Workspace::orderBy('name')->get(),
         ];
     }
 }

@@ -14,6 +14,7 @@ class Note extends Model
         'title',
         'content',
         'category_id',
+        'workspace_id',
     ];
 
     public function category()
@@ -23,5 +24,10 @@ class Note extends Model
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function workspace()
+    {
+        return $this->belongsTo(Workspace::class);
     }
 }
