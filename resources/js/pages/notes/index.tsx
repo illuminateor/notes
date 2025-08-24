@@ -31,6 +31,12 @@ interface Props {
     search?: string;
 }
 
+type PageProps = {
+    categories: { id: number; name: string }[];
+    tags: { id: number; name: string }[];
+    workspaces: { id: number; name: string }[];
+};
+
 interface TimestampConverterProps {
     timestamp: string;
 }
@@ -43,6 +49,14 @@ function TimestampConverter({ timestamp }: TimestampConverterProps) {
 export default function NotesIndex({ notes, search = '' }: Props) {
     const { props } = usePage();
     const [searchTerm, setSearchTerm] = useState(search ?? '');
+    const params = new URLSearchParams(window.location.search);
+    const categoryId = params.get('category') ?? '';
+    const tagId = params.get('tag') ?? '';
+    const workspaceId = params.get('workspace') ?? '';
+    const { categories, tags, workspaces } = usePage<PageProps>().props;
+    const category = categories.find((cat: { id: number }) => cat.id === Number(categoryId));
+    const tag = tags.find((tag: { id: number }) => tag.id === Number(tagId));
+    const workspace = workspaces.find((workspace: { id: number }) => workspace.id === Number(workspaceId));
 
     useEffect(() => {
         if (typeof props.success === 'string' && props.success) {
@@ -64,6 +78,21 @@ export default function NotesIndex({ notes, search = '' }: Props) {
         debouncedSearch(value);
     };
 
+    let title = 'All Notes';
+
+    if (category) {
+        title = `Category: ${category.name}`;
+    }
+    if (tag) {
+        title = `Tag: ${tag.name}`;
+    }
+    if (workspace) {
+        title = `Workspace: ${workspace.name}`;
+    }
+    if (searchTerm) {
+        title = `Search results for "${searchTerm}"`;
+    }
+
     return (
         <AppLayout>
             <div className="mb-4">
@@ -76,7 +105,7 @@ export default function NotesIndex({ notes, search = '' }: Props) {
                 />
             </div>
             <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-xl font-bold dark:text-white">All Notes</h2>
+                <h2 className="text-xl font-bold dark:text-white">{title}</h2>
                 <Link href="/notes/create" className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                     Add Note
                 </Link>
