@@ -7,11 +7,19 @@ use App\Models\Category;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
 use App\Models\Tag;
-use App\Models\Workspace;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class NoteController extends Controller
 {
+    use AuthorizesRequests;
+
+    public function __construct()
+    {
+        $this->authorizeResource(Note::class, 'note');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -21,7 +29,7 @@ class NoteController extends Controller
         $category = request('category');
         $tag = request('tag');
         $workspace = request('workspace');
-        $notesQuery = Note::query();
+        $notesQuery = Auth::user()->notes();
 
         if ($search) {
             $notesQuery->where(function ($query) use ($search) {
@@ -79,7 +87,9 @@ class NoteController extends Controller
     {
         $data = $request->validated();
         if (!empty($data['category'])) {
-            $category = Category::firstOrCreate(['name' => $data['category']]);
+            $category = Category::firstOrCreate(
+                ['name' => $data['category'], 'user_id' => Auth::id()]
+            );
             $data['category_id'] = $category->id;
         } else {
             $data['category_id'] = null;
@@ -89,11 +99,16 @@ class NoteController extends Controller
         // Assign workspace_id
         $data['workspace_id'] = $request->workspace_id;
 
+        // Assign user_id
+        $data['user_id'] = Auth::id();
+
         // Process tags
         $tags = [];
         if (!empty($data['selectedTags']) && is_array($data['selectedTags'])) {
             foreach ($data['selectedTags'] as $tagName) {
-                $tag = Tag::firstOrCreate(['name' => $tagName['label']]);
+                $tag = Tag::firstOrCreate(
+                    ['name' => $tagName['label'], 'user_id' => Auth::id()]
+                );
                 $tags[] = $tag->id;
             }
         }
@@ -114,7 +129,7 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        //
+        // The policy will handle authorization
     }
 
     /**
@@ -134,7 +149,9 @@ class NoteController extends Controller
     {
         $data = $request->validated();
         if (!empty($data['category'])) {
-            $category = Category::firstOrCreate(['name' => $data['category']]);
+            $category = Category::firstOrCreate(
+                ['name' => $data['category'], 'user_id' => Auth::id()]
+            );
             $data['category_id'] = $category->id;
         } else {
             $data['category_id'] = null;
@@ -148,7 +165,9 @@ class NoteController extends Controller
         $tags = [];
         if (!empty($data['selectedTags']) && is_array($data['selectedTags'])) {
             foreach ($data['selectedTags'] as $tagName) {
-                $tag = Tag::firstOrCreate(['name' => $tagName['label']]);
+                $tag = Tag::firstOrCreate(
+                    ['name' => $tagName['label'], 'user_id' => Auth::id()]
+                );
                 $tags[] = $tag->id;
             }
         }

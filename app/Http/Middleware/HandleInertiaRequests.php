@@ -6,6 +6,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
+use Illuminate\Support\Facades\Auth;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -51,9 +52,9 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'categories' => \App\Models\Category::orderBy('name')->get(),
-            'tags' => \App\Models\Tag::orderBy('name')->get(),
-            'workspaces' => \App\Models\Workspace::orderBy('name')->get(),
+            'categories' => $request->user() ? Auth::user()->categories()->orderBy('name')->get() : [],
+            'tags' => $request->user() ? Auth::user()->tags()->orderBy('name')->get() : [],
+            'workspaces' => $request->user() ? $request->user()->workspaces()->orderBy('name')->get() : [],
         ];
     }
 }

@@ -15,6 +15,7 @@ class Note extends Model
         'content',
         'category_id',
         'workspace_id',
+        'user_id',
     ];
 
     public function category()
@@ -29,5 +30,10 @@ class Note extends Model
     public function workspace()
     {
         return $this->belongsTo(Workspace::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

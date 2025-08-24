@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
+use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +20,11 @@ class NoteFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id' => User::factory(),
+            'category_id' => Category::factory(),
+            'workspace_id' => Workspace::factory(),
+            'title' => $this->faker->sentence,
+            'content' => $this->faker->paragraph,
         ];
     }
 }
