@@ -20,8 +20,8 @@ export default function Welcome() {
                     <div className="text-2xl font-bold text-gray-800 dark:text-white">Notes App</div>
                     <nav className="space-x-4">
                         {auth.user ? (
-                            <Link href={route('dashboard')} className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
-                                Dashboard
+                            <Link href={route('notes.index')} className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
+                                Your Notes
                             </Link>
                         ) : (
                             <>

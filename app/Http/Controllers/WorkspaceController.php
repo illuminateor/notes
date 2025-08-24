@@ -22,7 +22,7 @@ class WorkspaceController extends Controller
     {
         $workspaces = Auth::user()->workspaces()->get();
 
-        return inertia('dashboard', [
+        return inertia('notes.index', [
             'workspaces' => $workspaces,
         ]);
     }

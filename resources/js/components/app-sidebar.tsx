@@ -13,8 +13,8 @@ import { SidebarGroup, SidebarGroupLabel } from './ui/sidebar';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'All Notes',
+        href: '/notes',
         icon: LayoutGrid,
     },
     {
@@ -22,25 +22,9 @@ const mainNavItems: NavItem[] = [
         href: '/notes/create',
         icon: LayoutGrid,
     },
-    {
-        title: 'All Notes',
-        href: '/notes',
-        icon: LayoutGrid,
-    },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
+const footerNavItems: NavItem[] = [];
 
 type PageProps = {
     categories: { id: number; name: string }[];
@@ -86,7 +70,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href="/notes" prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
