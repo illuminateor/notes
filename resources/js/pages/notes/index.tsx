@@ -105,8 +105,8 @@ export default function NotesIndex({ notes, search = '' }: Props) {
                 />
             </div>
             <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-xl font-bold dark:text-white">{title}</h2>
-                <Link href="/notes/create" className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                <h2 className="px-4 text-xl font-bold dark:text-white">{title}</h2>
+                <Link href="/notes/create" className="mr-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                     Add Note
                 </Link>
             </div>
@@ -114,7 +114,7 @@ export default function NotesIndex({ notes, search = '' }: Props) {
                 {notes.map((note) => (
                     <Card
                         key={note.id}
-                        className="group cursor-pointer transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+                        className="group mx-4 cursor-pointer transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-xl md:mx-0 dark:border-gray-700 dark:bg-gray-800"
                     >
                         <Link href={`/notes/${note.id}/edit`} className="block p-4">
                             <CardContent className="flex h-full flex-col p-0">
