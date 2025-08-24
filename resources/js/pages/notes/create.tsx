@@ -13,8 +13,8 @@ import React, { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'All Notes',
+        href: '/notes',
     },
     {
         title: 'Create Note',
