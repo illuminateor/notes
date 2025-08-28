@@ -16,6 +16,7 @@ class Note extends Model
         'category_id',
         'workspace_id',
         'user_id',
+        'share_id',
     ];
 
     public function category()

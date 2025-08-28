@@ -9,12 +9,14 @@ import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
 type Note = {
     id: number;
     title: string;
     content: string;
+    share_id?: string;
     category?: {
         id: number;
         name: string;
@@ -116,6 +118,23 @@ export default function EditNote({ note }: Props) {
         }
     }
 
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [shareLink, setShareLink] = useState('');
+
+    const handleShare = async () => {
+        try {
+            const response = await axios.post(`/notes/${note.id}/share`);
+            const { share_id } = response.data;
+            if (share_id) {
+                setShareLink(`${window.location.origin}/share/${share_id}`);
+                setShowShareModal(true);
+            }
+        } catch (error) {
+            console.error('Error sharing note:', error);
+            alert('Failed to create share link.');
+        }
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Note" />
@@ -128,6 +147,23 @@ export default function EditNote({ note }: Props) {
                     <button onClick={handleDelete} className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700">
                         Delete Note
                     </button>
+                    <Button type="button" variant="outline" className="ml-2" onClick={handleShare}>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="mr-2 h-4 w-4"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186A2.25 2.25 0 016.364 13.5l-4.242 4.243a1.125 1.125 0 00-.332 1.12c.36.636 1.054.939 1.757.939h13.186a1.125 1.125 0 001.757-.938c.115-.393.115-.793 0-1.186l-4.243-4.243a2.25 2.25 0 01-1.837-2.67M19.5 9.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"
+                            />
+                        </svg>
+                        Share
+                    </Button>
                 </div>
             </div>
             <form onSubmit={handleSubmit} className="flex h-full flex-col gap-4 md:h-[calc(100vh-10rem)]">
@@ -426,6 +462,35 @@ export default function EditNote({ note }: Props) {
                     Update Note
                 </Button>
             </form>
+
+            {showShareModal && (
+                <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+                        <h3 className="mb-4 text-xl font-bold dark:text-white">Share Note</h3>
+                        <p className="mb-4 text-gray-700 dark:text-gray-300">Share this link with anyone to view your note:</p>
+                        <div className="flex items-center space-x-2">
+                            <Input
+                                type="text"
+                                value={shareLink}
+                                readOnly
+                                className="flex-grow dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                            />
+                            <Button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(shareLink);
+                                    alert('Link copied to clipboard!');
+                                }}
+                                className="dark:bg-blue-600 dark:hover:bg-blue-500"
+                            >
+                                Copy
+                            </Button>
+                        </div>
+                        <Button onClick={() => setShowShareModal(false)} className="mt-4 w-full dark:bg-gray-700 dark:hover:bg-gray-600">
+                            Close
+                        </Button>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }

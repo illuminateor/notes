@@ -10,6 +10,7 @@ use App\Models\Tag;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Str;
 
 class NoteController extends Controller
 {
@@ -193,5 +194,26 @@ class NoteController extends Controller
         $note->delete();
 
         return redirect()->route('notes.index')->with('success', 'Note deleted successfully.');
+    }
+
+    public function share(Note $note)
+    {
+        if ($note->share_id) {
+            return response()->json(['share_id' => $note->share_id]);
+        }
+
+        $shareId = Str::random(10);
+        $note->update(['share_id' => $shareId]);
+
+        return response()->json(['share_id' => $shareId]);
+    }
+
+    public function showShared(string $share_id)
+    {
+        $note = Note::where('share_id', $share_id)->firstOrFail();
+
+        return Inertia::render('notes/show-shared', [
+            'note' => $note->load('category')->load('tags')->load('workspace'),
+        ]);
     }
 }
