@@ -98,7 +98,10 @@ export default function CreateNote() {
             <Head title="Create Note" />
             <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-xl font-bold dark:text-white">Create Note</h2>
-                <Link href="/notes" className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600">
+                <Link
+                    href="/notes"
+                    className="inline-flex items-center justify-center rounded-md border border-input bg-green-600 px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-colors hover:bg-green-700 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                >
                     Back to Notes
                 </Link>
             </div>
